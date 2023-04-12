@@ -36,7 +36,7 @@
 
     <!-- Latest compiled JavaScript -->
 
-    <link rel="stylesheet" href="css/custom.css">
+    <link rel="stylesheet" href="{{URL::to('/css/custom.css')}}">
 
     <style>
         
@@ -53,7 +53,7 @@
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
- <script src="js/custom.js"></script>
+ <script src="{{URL::to('/js/custom.js')}}"></script>
  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCx0Z4yauzBpfz1F6avmCDriDHhoMChbuw&libraries=places&callback=initMap" ></script>
  
 

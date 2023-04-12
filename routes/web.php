@@ -7,6 +7,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\RazorpayController;
 use App\Http\Controllers\logoutController;
 use App\Http\Controllers\BookingPaymentController;
+use App\Http\Controllers\DriverController;
 
 
 /*
@@ -52,14 +53,17 @@ Route::get('/check_login', [BookingController::class,'booking_view'])->name('che
 //booking process
 Route::post('/bookingProcess',[BookingController::class,'booking_proccess'])->name('Booking_Process')->middleware('check_auth');
 // Razorpay payment gateway
-Route::get('razorpay', [RazorpayController::class, 'razorpay'])->name('razorpay');
-Route::post('razorpaypayment', [RazorpayController::class, 'payment'])->name('payment');
+Route::get('razorpay', [RazorpayController::class, 'razorpay'])->name('razorpay')->middleware('check_auth');;
+Route::post('razorpaypayment', [RazorpayController::class, 'payment'])->name('payment')->middleware('check_auth');;
 
 //Payment Routes
 Route::get('/payment_done', function(){
     return view('payment_done');
-})->name('PaymentDone');
+})->name('PaymentDone')->middleware('check_auth');;
 	
-Route::post('/orderid-generate', [App\Http\Controllers\BookingPaymentController::class, 'orderIdGenerate']);
+Route::post('/orderid-generate', [App\Http\Controllers\BookingPaymentController::class, 'orderIdGenerate'])->middleware('check_auth');
+Route::get('/payment/{razorpay_payment_id}/{razorpay_order_id}/{razorpay_signature}', [App\Http\Controllers\BookingPaymentController::class, 'storePayment'])->middleware('check_auth');
 
-Route::get('/payment/{razorpay_payment_id}/{razorpay_order_id}/{razorpay_signature}', [App\Http\Controllers\BookingPaymentController::class, 'storePayment']);
+//Driver assign routes
+Route::get('/driver/driver_assigned',[DriverController::class,'driver_assigned'])->name('assigned_Driver')->middleware('check_auth');
+Route::get('/user/invoice',[DriverController::class,'userInvoice'])->name('User-Invoice');

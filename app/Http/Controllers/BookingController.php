@@ -164,7 +164,7 @@ class BookingController extends Controller
             $addons->booking_addons_price=$supportPrice;
             $addons->booking_addons_status=0;
             $addons->booking_addons_remove_time=" ";
-            $addons->booking_addons_added_time=Carbon\Carbon::now()->toDateTimeString();
+            $addons->booking_addons_added_time=time();
             $addons->save();
             if($addons->save()){
             return response()->json(["status" => "Added Successfully","Booking_id" => session('booking_id')]);
@@ -186,7 +186,7 @@ class BookingController extends Controller
                 ->where("booking_id","=",Session::get('booking_id'))
                 ->where('booking_addons_status','=','1')
                 ->update([
-                    'booking_addons_status'=>'0', 'booking_addons_added_time'=>strtotime(date('Y-m-d H:i:s'))
+                    'booking_addons_status'=>'0', 'booking_addons_added_time'=>time(),
                 ]);
                 if($update_remove_addons){
                     return response()->json(['status'=> 'Removed Addons Updated Successfully','booking_id'=>Session::get('booking_id')]);

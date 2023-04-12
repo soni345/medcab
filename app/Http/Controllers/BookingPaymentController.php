@@ -15,9 +15,7 @@ use Session;
 
 class BookingPaymentController extends Controller
 {
-    //
-       //use this on top in the controller
-       
+    //use this on top in the controller
     public function viewPayment(){
         return view('payment');
     }
@@ -46,97 +44,89 @@ class BookingPaymentController extends Controller
             $bank = $payment['bank'];
             $wallet = $payment['wallet'];
             $bankTranstionId = isset($payment['acquirer_data']['bank_transaction_id']) ? $payment['acquirer_data']['bank_transaction_id'] : '';
-    }
-    else{
-        return redirect()->back()->with('error', 'Something went wrong, Please try again later!');
-    }
-
-    $check_transaction=Booking_Payment::where('booking_id','=',session('booking_id'))->get();
-    if($check_transaction->count()==1){
-        return redirect()->route('PaymentDone')->with(['success'=>'Payment Detail store successfully!',"payment_details"=>$check_transaction]);
-    }
-    else{
-        try {
-            // Payment detail save in database
-            session::put('payAmount',$amount / 100);
-            $payment = new Booking_Payment;
-            $payment->consumer_id = session('consumer_id');
-            $payment->booking_id = session('booking_id');
-            $payment->transaction_id = $paymentId;
-            $payment->amount = $amount / 100;
-            $payment->currency = $currency;
-            $payment->entity = $entity;
-            $payment->status = $status;
-            $payment->order_id = $orderId;
-            $payment->method = $method;
-            $payment->bank = $bank;
-            $payment->wallet = $wallet;
-            $payment->bank_transaction_id = $bankTranstionId;
-            $payment->booking_transaction_time=time();
-            $saved = $payment->save();
+        }
+        else{
+            return redirect()->back()->with('error', 'Something went wrong, Please try again later!');
+        }
+        $check_transaction=Booking_Payment::where('booking_id','=',session('booking_id'))->get();
+        if($check_transaction->count()==1){
+            return redirect()->route('PaymentDone')->with(['success'=>'Payment Detail store successfully!',"payment_details"=>$check_transaction]);
+        }
+        else{
+            try {
+                // Payment detail save in database
+                session::put('payAmount',$amount / 100);
+                $payment = new Booking_Payment;
+                $payment->consumer_id = session('consumer_id');
+                $payment->booking_id = session('booking_id');
+                $payment->transaction_id = $paymentId;
+                $payment->amount = $amount / 100;
+                $payment->currency = $currency;
+                $payment->entity = $entity;
+                $payment->status = $status;
+                $payment->order_id = $orderId;
+                $payment->method = $method;
+                $payment->bank = $bank;
+                $payment->wallet = $wallet;
+                $payment->bank_transaction_id = $bankTranstionId;
+                $payment->booking_transaction_time=time();
+                $saved = $payment->save();
             }
             catch (Exception $e) {
                 $saved = false;
             }
-            if($saved)
+        }
+        if($saved)
+        {
+            session::put('pay_id',$payment->id);
+            //update payment status in booking table
+            if(session('consumer.full_amount')==session::get('payAmount'))
             {
-                session::put('pay_id',$payment->id);
-                //update payment status in booking table
-                if(session('consumer.full_amount')==session::get('payAmount')){
-                    $update_payment_status=DB::table('booking_view')->where('booking_id','=',session('booking_id'))->update(['booking_payment_status' =>'3']);
-                    if($update_payment_status)
-                    {
-                        $success='Full Payment!';
-                        echo "<script>alert('".$success."');</script>";
-                        exit();
-                    }
-                    else{
-                        $success='Not Updated Full Payment';
-                        echo "<script>alert('".$success."');</script>";
-                        exit();
-                        return redirect()->route('PaymentDone')->with(compact('success'));
-                    }
-                    return redirect()->route('PaymentDone')->with(compact('success'));
-                }
-                elseif(session('consumer.adv_amount')==($amount/100))
+                $update_payment_status=DB::table('booking_view')->where('booking_id','=',session('booking_id'))->update(['booking_payment_status' =>'3']);
+                if($update_payment_status)
                 {
-                    $update_payment_status=DB::table('booking_view')->where('booking_id','=',Session::get('booking_id'))->update(['booking_payment_status' =>'2']);                  
-                    if($update_payment_status){
-                        $success='Advance Payment!';
-                        echo "<script>alert('".$success."');</script>";
-                        exit();
-                    }
-                    else{
-                        $success='Not Updated advance Payment'.session('consumer.adv_amount')."==".($amount/100);
-                        echo "<script>alert('".$success."');</script>";
-                        exit();
-                        return redirect()->route('PaymentDone')->with(compact('success'));
-                    }
-                    return redirect()->route('PaymentDone')->with(compact('success'));
-                    
+                    $success='Full Payment!';
+                    echo "<script>alert('".$success."');</script>";  
                 }
                 else{
-                    $success='Payment status not updated!'.session('consumer.adv_amount')."==".($amount/100);
+                    $success='Not Updated Full Payment';
                     echo "<script>alert('".$success."');</script>";
-                    echo session('booking_id');
-                    $update_payment_status=DB::table('booking_view')->where('booking_id','=',session('booking_id'))->update(['booking_payment_status' =>'3']);
-                        exit();
                     return redirect()->route('PaymentDone')->with(compact('success'));
                 }
-                
-            } else {
-                echo "<script>alert('".session('consumer.adv_amount')."==".($amount/100)."');</script>";
-                echo "<script>alert('".session('booking_id')."');</script>";
-                // echo session('booking_id');
-                exit();
-                return redirect()->
+                return redirect()->route('PaymentDone')->with(compact('success'));
+            }
+            elseif(session('consumer.adv_amount')==($amount/100))
+            {
+                $update_payment_status=DB::table('booking_view')->where('booking_id','=',Session::get('booking_id'))->update(['booking_payment_status' =>'2']);                  
+                if($update_payment_status)
+                {
+                    $success='Advance Payment!';
+                    echo "<script>alert('".$success."');</script>";   
+                }
+                else
+                {
+                    $success='Not Updated advance Payment'.session('consumer.adv_amount')."==".($amount/100);
+                    echo "<script>alert('".$success."');</script>";
+                    return redirect()->route('PaymentDone')->with(compact('success'));
+                }
+                return redirect()->route('PaymentDone')->with(compact('success'));    
+            }
+            else{
+                $success='Payment status not updated!'.session('consumer.adv_amount')."==".($amount/100);
+                echo "<script>alert('".$success."');</script>";
+                echo session('booking_id');
+                $update_payment_status=DB::table('booking_view')->where('booking_id','=',session('booking_id'))->update(['booking_payment_status' =>'3']);
+                return redirect()->route('PaymentDone')->with(compact('success'));
+            }
+        }
+        else
+        {
+            echo "<script>alert('".session('consumer.adv_amount')."==".($amount/100)."');</script>";
+            echo "<script>alert('".session('booking_id')."');</script>";
+            return redirect()->
                     route('PaymentDone')
                     ->with(['status'=>'Something went wrong, Please try again later!']);
-            }
-        
-
+        }
     }
     
-    
-    }
 }

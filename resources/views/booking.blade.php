@@ -299,10 +299,7 @@ if(Session::has('users')){
         </div>
     </div>
 </div>
-<?php
-echo "<pre/>";
-    print_r(session::all());
-?>
+
                                     <!-- Read MOre model start -->
 <script>
    
@@ -510,6 +507,17 @@ Array.prototype.forEach.call(payMethod, function(element) {
     }
 
     // payment script
+
+    if($('input[id="pay_full_radio"]').is(':checked')){
+        $('input[id="pay_full_radio"]').click();
+
+    }
+    else if($('input[id="pay_advance"]').is(':checked')){
+        $('input[id="pay_advance"]').click();
+    }
+    else{
+        console.log("Payment Method not selected!");
+    }
 
     e.preventDefault();
         var amount = $('#payment').val();

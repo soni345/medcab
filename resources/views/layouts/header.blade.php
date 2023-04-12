@@ -9,7 +9,7 @@
                     <nav class="main-nav">
                         <!-- ***** Logo Start ***** -->
                         <a href="index.html" class="logo">
-                            <img src="assets/image/logo.png" style="#">
+                            <img src="{{URL::to('/assets/image/logo.png')}}" style="#">
                         </a>
                         <!-- ***** Logo End ***** -->
                         <!-- ***** Menu Start ***** -->
